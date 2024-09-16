@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "927659427090",
+    "project_id": "proyectofluttercapscone",
+    "storage_bucket": "proyectofluttercapscone.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927659427090:android:c0bf0cb5cf877bcd4d1fcb",
+        "android_client_info": {
+          "package_name": "com.example.proyecto_flutter_capscone"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_9dnM9tu6N1JBlp0MrOodnYn5BrLaEaY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
