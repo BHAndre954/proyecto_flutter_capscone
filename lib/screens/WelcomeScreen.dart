@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/signin_screen.dart';
+import 'package:proyecto_flutter_capscone/utils/navigation_utils.dart';
 
 class WelcomeScreen extends StatefulWidget {
   @override
@@ -114,7 +115,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             // Saltar el carrusel e ir a la pantalla de inicio de sesión
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => SignInScreen()),
+              createRoute(SignInScreen()),
             );
           },
           child: const Text("Skip"),
@@ -147,7 +148,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             if (_currentIndex == imagesList.length - 1) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => SignInScreen()),
+                createRoute(SignInScreen()),
               );
             } else {
               setState(() {

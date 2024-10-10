@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/home_screen.dart';
+import 'package:proyecto_flutter_capscone/utils/navigation_utils.dart';
 import 'package:proyecto_flutter_capscone/screens/reset_password.dart';
 import 'package:proyecto_flutter_capscone/screens/signup_screen.dart';
 import 'package:proyecto_flutter_capscone/services/firebase_services.dart';
@@ -259,7 +260,7 @@ Row signUpOption(BuildContext context) {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => SignUpScreen()),
+            createRoute(SignUpScreen()),
           );
         },
         child: const Text(
