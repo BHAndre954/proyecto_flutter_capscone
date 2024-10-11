@@ -24,7 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
- 
   void filterSearchResults(String query) {
     List<String> dummyList = [];
     if (query.isNotEmpty) {
@@ -43,10 +42,8 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  
   static List<Widget> _widgetOptions(BuildContext context, List<String> filteredSections, Function filterSearchResults) {
     return [
-      
       Column(
         children: [
           Padding(
@@ -127,11 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
-      
-      ProfilePage(),
-
-      
+      ProfilePage(), // La página de perfil que se mostrará sin AppBar
       AboutUsPage(),
     ];
   }
@@ -139,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text(
           '🧏‍♂️ COMUNIMUNDO 🧏‍♀️',

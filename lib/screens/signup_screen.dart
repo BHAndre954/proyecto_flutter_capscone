@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importar Firestore
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/home_screen.dart';
@@ -14,6 +15,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
   TextEditingController _userNameTextController = TextEditingController();
+  TextEditingController _lastNameTextController = TextEditingController(); // Nuevo controlador para apellido
 
   bool _isLoading = false;
 
@@ -22,6 +24,100 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final emailRegex = RegExp(
         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
     return emailRegex.hasMatch(email);
+  }
+
+  Future<void> _signUp() async {
+    // Validación de los campos
+    if (_userNameTextController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Por favor ingrese su nombre.")),
+      );
+      return;
+    }
+
+    if (_lastNameTextController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Por favor ingrese su apellido.")),
+      );
+      return;
+    }
+
+    if (_emailTextController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Por favor ingrese su correo.")),
+      );
+      return;
+    }
+
+    if (!isValidEmail(_emailTextController.text)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Por favor, ingrese un correo válido.")),
+      );
+      return;
+    }
+
+    if (_passwordTextController.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("La contraseña debe contener al menos 6 caracteres.")),
+      );
+      return;
+    }
+
+    // Activar el estado de carga
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Crear cuenta con Firebase Auth
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+        email: _emailTextController.text,
+        password: _passwordTextController.text,
+      );
+
+      // Obtener el UID del usuario recién creado
+      String uid = userCredential.user!.uid;
+
+      // Guardar los datos del usuario en Firestore
+      await FirebaseFirestore.instance.collection('users').doc(uid).set({
+        'name': _userNameTextController.text,
+        'lastName': _lastNameTextController.text,
+        'email': _emailTextController.text,
+        'createdAt': FieldValue.serverTimestamp(), // Marca de tiempo automática
+        'isDeafOrBlind': false, // Campo predeterminado que el usuario puede editar más tarde
+        'birthDate': '', // El usuario lo llenará más tarde
+        'nationality': '', // El usuario lo llenará más tarde
+      });
+
+      print("Nueva cuenta creada y datos guardados en Firestore");
+
+      // Redirigir al HomeScreen después de registrarse
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+      if (e.code == 'email-already-in-use') {
+        errorMessage = 'El correo ya está registrado.';
+      } else if (e.code == 'weak-password') {
+        errorMessage = 'La contraseña es demasiado débil.';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'El correo electrónico no es válido.';
+      } else {
+        errorMessage = 'Error al registrar: ${e.message}';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage)),
+      );
+    } finally {
+      // Desactivar el estado de carga
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -52,6 +148,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               children: <Widget>[
                 const SizedBox(height: 20),
+
                 // Campo para el nombre de usuario
                 TextField(
                   controller: _userNameTextController,
@@ -75,6 +172,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 20),
 
+                // Campo para el apellido
+                TextField(
+                  controller: _lastNameTextController,
+                  cursorColor: Colors.black,
+                  style: TextStyle(color: Colors.black.withOpacity(0.9)),
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.person_outline,
+                      color: Colors.black.withOpacity(0.9),
+                    ),
+                    labelText: "Ingrese su apellido",
+                    labelStyle: TextStyle(color: Colors.black.withOpacity(0.9)),
+                    filled: true,
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: const BorderSide(color: Colors.black),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
                 // Campo para el correo electrónico
                 TextField(
                   controller: _emailTextController,
@@ -82,7 +202,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   style: TextStyle(color: Colors.black.withOpacity(0.9)),
                   decoration: InputDecoration(
                     prefixIcon: Icon(
-                      Icons.email_outlined, // Cambié a un ícono de correo
+                      Icons.email_outlined,
                       color: Colors.black.withOpacity(0.9),
                     ),
                     labelText: "Ingrese su correo",
@@ -124,85 +244,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                 // Botón de "Sign Up" con indicador de carga
                 ElevatedButton(
-                  onPressed: () async {
-                    // Validación de los campos
-                    if (_userNameTextController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Por favor ingrese su nombre.")),
-                      );
-                      return;
-                    }
-
-                    if (_emailTextController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Por favor ingrese su correo.")),
-                      );
-                      return;
-                    }
-
-                    if (!isValidEmail(_emailTextController.text)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text("Por favor, ingrese un correo válido.")),
-                      );
-                      return;
-                    }
-
-                    if (_passwordTextController.text.length < 6) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                "La contraseña debe contener al menos 6 caracteres.")),
-                      );
-                      return;
-                    }
-
-                    // Activar el estado de carga
-                    setState(() {
-                      _isLoading = true;
-                    });
-
-                    // Intentar crear la cuenta
-                    try {
-                      await FirebaseAuth.instance
-                          .createUserWithEmailAndPassword(
-                        email: _emailTextController.text,
-                        password: _passwordTextController.text,
-                      );
-                      print("Nueva cuenta creada");
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                      );
-                    } on FirebaseAuthException catch (e) {
-                      String errorMessage;
-                      if (e.code == 'email-already-in-use') {
-                        errorMessage = 'El correo ya está registrado.';
-                      } else if (e.code == 'weak-password') {
-                        errorMessage = 'La contraseña es demasiado débil.';
-                      } else if (e.code == 'invalid-email') {
-                        errorMessage = 'El correo electrónico no es válido.';
-                      } else {
-                        errorMessage = 'Error al registrar: ${e.message}';
-                      }
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(errorMessage)),
-                      );
-                    } finally {
-                      // Desactivar el estado de carga
-                      setState(() {
-                        _isLoading = false;
-                      });
-                    }
-                  },
+                  onPressed: _signUp,
                   child: _isLoading
-                      ? CircularProgressIndicator(
-                          color: Colors.white,
-                        )
+                      ? CircularProgressIndicator(color: Colors.white)
                       : Text(
-                          "Registrate",
+                          "Registrarse",
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
