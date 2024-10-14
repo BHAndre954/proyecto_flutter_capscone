@@ -179,8 +179,26 @@ flutter:
     - assets/rojo.png
     - assets/rosado.jpg
     - assets/verde.jpg
+    - assets/G1.gif
+    - assets/G2.gif
+    - assets/G3.gif
+    - assets/G4.gif
+    - assets/G5.gif
+    - assets/G6.gif
+    - assets/G7.gif
+    - assets/G8.gif
+    - assets/G9.gif
+    - assets/G10.gif
+    - assets/yo.gif
+    - assets/tu.gif
+    - assets/el.gif
+    - assets/ella.gif
+    - assets/nosotros.gif
+    - assets/ellos.gif
+    - assets/ellas.gif
+    - assets/ustedes.gif
 
-
+ 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
 
