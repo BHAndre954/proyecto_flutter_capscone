@@ -4,6 +4,7 @@ import 'package:proyecto_flutter_capscone/screens/numbers_screen.dart'; // Panta
 import 'package:proyecto_flutter_capscone/screens/colors_screen.dart';
 import 'package:proyecto_flutter_capscone/screens/social_relations_screen.dart';
 import 'package:proyecto_flutter_capscone/screens/pronouns_screen.dart';
+import 'package:proyecto_flutter_capscone/screens/greetings_screen.dart';
 
 class LearningScreen extends StatelessWidget {
   final List<Map<String, String>> learningCategories = [
@@ -67,15 +68,23 @@ class LearningScreen extends StatelessWidget {
                     builder: (context) => ColorsScreen(),
                   ),
                 );
-              }else if (index == 4) {
-  // Navegar a la pantalla de Pronombres
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => PronounsScreen(),
-    ),
-  );
-} else {
+              } else if (index == 4) {
+                // Navegar a la pantalla de Pronombres
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PronounsScreen(),
+                  ),
+                );
+              } else if (index == 5) {
+                // Navegar a la pantalla de Saludos
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GreetingsScreen(),
+                  ),
+                );
+              } else {
                 // Puedes manejar otras secciones aquí
                 print(
                     'Sección seleccionada: ${learningCategories[index]['name']}');

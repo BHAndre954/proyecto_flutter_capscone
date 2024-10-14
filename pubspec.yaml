@@ -197,6 +197,14 @@ flutter:
     - assets/ellos.gif
     - assets/ellas.gif
     - assets/ustedes.gif
+    - assets/adios.gif
+    - assets/buenosdias.gif
+    - assets/comoestas.gif
+    - assets/denada.gif
+    - assets/gracias.gif
+    - assets/hola.gif
+    - assets/enviarmensaje.png
+
 
  
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/profile_page.dart';
 import 'package:proyecto_flutter_capscone/screens/about_us_page.dart';
 import 'package:proyecto_flutter_capscone/screens/learning_screen.dart'; // Importar la nueva pantalla de aprendizaje
+import 'package:proyecto_flutter_capscone/screens/practice_screen.dart'; // Importar la pantalla de práctica
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -58,7 +59,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         break;
                       case 1:
                         // Navegar al módulo de Práctica
-                        print('Módulo de Práctica seleccionado');
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PracticeScreen(),
+                          ),
+                        );
                         break;
                       case 2:
                         // Navegar al módulo de Comunicación
