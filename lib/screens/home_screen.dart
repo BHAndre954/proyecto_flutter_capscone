@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/profile_page.dart';
 import 'package:proyecto_flutter_capscone/screens/about_us_page.dart';
+import 'package:proyecto_flutter_capscone/screens/learning_screen.dart'; // Importar la nueva pantalla de aprendizaje
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,13 +10,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  List<String> sections = ['Traducir con voz', 'Abecedario', 'Con teclado', 'Números', 'Colores', 'Sobre nosotros'];
+
+  // Actualizar las secciones para los nuevos módulos
+  List<String> sections = ['Aprendizaje', 'Práctica', 'Comunicación', 'Materiales de Apoyo'];
   List<String> filteredSections = [];
 
   @override
   void initState() {
     super.initState();
-    filteredSections = sections; 
+    filteredSections = sections;
   }
 
   void _onItemTapped(int index) {
@@ -24,58 +27,48 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void filterSearchResults(String query) {
-    List<String> dummyList = [];
-    if (query.isNotEmpty) {
-      sections.forEach((item) {
-        if (item.toLowerCase().contains(query.toLowerCase())) {
-          dummyList.add(item);
-        }
-      });
-      setState(() {
-        filteredSections = dummyList;
-      });
-    } else {
-      setState(() {
-        filteredSections = sections;
-      });
-    }
-  }
-
-  static List<Widget> _widgetOptions(BuildContext context, List<String> filteredSections, Function filterSearchResults) {
+  static List<Widget> _widgetOptions(BuildContext context, List<String> filteredSections) {
     return [
+      // Pantalla principal con los cuatro módulos
       Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextField(
-              onChanged: (value) {
-                filterSearchResults(value);
-              },
-              decoration: InputDecoration(
-                labelText: "Buscar",
-                hintText: "Buscar sección (ej. Colores)",
-                prefixIcon: Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(25.0)),
-                ),
-              ),
-            ),
-          ),
           Expanded(
             child: GridView.builder(
               padding: const EdgeInsets.all(20.0),
               itemCount: filteredSections.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, 
-                childAspectRatio: 1.5, 
+                crossAxisCount: 2,
+                childAspectRatio: 1.5,
                 crossAxisSpacing: 20.0,
-                mainAxisSpacing: 20.0, 
+                mainAxisSpacing: 20.0,
               ),
               itemBuilder: (context, index) {
+                // Manejar la acción al tocar cada uno de los módulos
                 return GestureDetector(
                   onTap: () {
-                    print('Sección seleccionada: ${filteredSections[index]}');
+                    switch (index) {
+                      case 0:
+                        // Navegar al módulo de Aprendizaje
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LearningScreen(),
+                          ),
+                        );
+                        break;
+                      case 1:
+                        // Navegar al módulo de Práctica
+                        print('Módulo de Práctica seleccionado');
+                        break;
+                      case 2:
+                        // Navegar al módulo de Comunicación
+                        print('Módulo de Comunicación seleccionado');
+                        break;
+                      case 3:
+                        // Navegar al módulo de Materiales de Apoyo
+                        print('Módulo de Materiales de Apoyo seleccionado');
+                        break;
+                    }
                   },
                   child: Container(
                     decoration: BoxDecoration(
@@ -93,20 +86,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Definir iconos específicos para cada módulo
                         Icon(
                           index == 0
-                              ? Icons.mic
+                              ? Icons.school // Aprendizaje
                               : index == 1
-                                  ? Icons.text_fields
+                                  ? Icons.gamepad // Práctica o Juegos
                                   : index == 2
-                                      ? Icons.keyboard
-                                      : index == 3
-                                          ? Icons.format_list_numbered
-                                          : Icons.color_lens, 
+                                      ? Icons.message // Comunicación
+                                      : Icons.library_books, // Materiales de Apoyo
                           size: 50,
                           color: Colors.blue[800],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text(
                           filteredSections[index],
                           style: TextStyle(
@@ -124,7 +116,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      ProfilePage(), // La página de perfil que se mostrará sin AppBar
+
+      // Página de perfil
+      ProfilePage(),
+
+      // Página de información "Sobre Nosotros"
       AboutUsPage(),
     ];
   }
@@ -140,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.blue[800],
         centerTitle: true,
       ),
-      body: _widgetOptions(context, filteredSections, filterSearchResults)[_selectedIndex], 
+      body: _widgetOptions(context, filteredSections)[_selectedIndex], // Renderizar el contenido
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -158,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue[800],
-        onTap: _onItemTapped,
+        onTap: _onItemTapped, // Cambiar entre inicio, perfil y sobre nosotros
       ),
     );
   }

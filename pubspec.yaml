@@ -69,7 +69,117 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/
+    - assets/image1.jpg
+    - assets/Logito.png
+    - assets/Logo.png
+    - assets/alphabet.png
+    - assets/numbers.png
+    - assets/colors.png
+    - assets/social.png
+    - assets/pronouns.png
+    - assets/greetings.png
+    - assets/others.png
+    - assets/A.png
+    - assets/B.png
+    - assets/C.png
+    - assets/D.png
+    - assets/E.png
+    - assets/F.png
+    - assets/G.png
+    - assets/H.png
+    - assets/I.png
+    - assets/J.png
+    - assets/K.png
+    - assets/L.png
+    - assets/M.png
+    - assets/N.png
+    - assets/Ñ.png
+    - assets/O.png
+    - assets/P.png
+    - assets/Q.png
+    - assets/R.png
+    - assets/S.png
+    - assets/T.png
+    - assets/U.png
+    - assets/V.png
+    - assets/W.png
+    - assets/X.png
+    - assets/Y.png
+    - assets/Z.png
+    - assets/sign_A.png
+    - assets/sign_B.png
+    - assets/sign_C.png
+    - assets/sign_D.png
+    - assets/sign_E.png
+    - assets/sign_F.png
+    - assets/sign_G.png
+    - assets/sign_H.png
+    - assets/sign_I.png
+    - assets/sign_J.png
+    - assets/sign_K.png
+    - assets/sign_L.png 
+    - assets/sign_M.png
+    - assets/sign_N.png
+    - assets/sign_Ñ.png
+    - assets/sign_O.png
+    - assets/sign_P.png
+    - assets/sign_Q.png
+    - assets/sign_R.png
+    - assets/sign_S.png
+    - assets/sign_T.png
+    - assets/sign_U.png
+    - assets/sign_V.png
+    - assets/sign_W.png
+    - assets/sign_X.png
+    - assets/sign_Y.png
+    - assets/sign_Z.png
+    - assets/1.png
+    - assets/2.png
+    - assets/3.png
+    - assets/4.png
+    - assets/5.png
+    - assets/6.png
+    - assets/7.png
+    - assets/8.png
+    - assets/9.png
+    - assets/10.png
+    - assets/sign_1.png
+    - assets/sign_2.png
+    - assets/sign_3.png
+    - assets/sign_4.png
+    - assets/sign_5.png
+    - assets/sign_6.png
+    - assets/sign_7.png
+    - assets/sign_8.png
+    - assets/sign_9.png
+    - assets/sign_10.png
+    - assets/sign_amarillo.PNG
+    - assets/sign_anaranjado.PNG
+    - assets/sign_azul.PNG
+    - assets/sign_blanco.PNG
+    - assets/sign_cafe.PNG
+    - assets/sign_morado.PNG
+    - assets/sign_negro.PNG
+    - assets/sign_oro.PNG
+    - assets/sign_plata.PNG
+    - assets/sign_plomo.PNG
+    - assets/sign_rojo.PNG
+    - assets/sign_rosado.PNG
+    - assets/sign_verde.PNG
+    - assets/amarillo.png
+    - assets/anaranjado.jpg
+    - assets/azul.png
+    - assets/blanco.jpg
+    - assets/cafe.png
+    - assets/morado.png
+    - assets/negro.png
+    - assets/oro.jpg
+    - assets/plata.jpg
+    - assets/plomo.jpg
+    - assets/rojo.png
+    - assets/rosado.jpg
+    - assets/verde.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -96,3 +206,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+
+
+
+
