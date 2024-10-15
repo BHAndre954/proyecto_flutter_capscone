@@ -1,38 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
-  <base href="$FLUTTER_BASE_HREF">
-
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="proyecto_flutter_capscone">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
-
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
-
-  <title>proyecto_flutter_capscone</title>
-  <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descargar COMUNIMUNDO</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        header {
+            background-color: #0078d7;
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+            color: #555;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #ff9900;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        .download-btn:hover {
+            background-color: #ff6600;
+        }
+        footer {
+            background-color: #0078d7;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+    <header>
+        <h1>Descargar COMUNIMUNDO</h1>
+    </header>
+
+    <div class="container">
+        <h2>Bienvenidos a COMUNIMUNDO</h2>
+        <p>
+            COMUNIMUNDO es una aplicación diseñada para facilitar la comunicación y el aprendizaje del lenguaje de señas.
+        </p>
+        <p>
+            Haz clic en el botón de abajo para descargar la última versión de la aplicación.
+        </p>
+        <a class="download-btn" href="https://drive.google.com/uc?export=download&id=1IXRBBvhOvavQrymyckOYAaukh55o-QrD" target="_blank">Descargar APK</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 COMUNIMUNDO. Todos los derechos reservados.</p>
+    </footer>
 </body>
 </html>
