@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/home_screen.dart';
+import 'package:proyecto_flutter_capscone/screens/maintenance_screen.dart'; // Asegúrate de importar esta pantalla
 import 'package:proyecto_flutter_capscone/utils/navigation_utils.dart';
 import 'package:proyecto_flutter_capscone/screens/reset_password.dart';
 import 'package:proyecto_flutter_capscone/screens/signup_screen.dart';
@@ -24,6 +26,13 @@ class _SignInScreenState extends State<SignInScreen> {
     final emailRegex = RegExp(
         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
     return emailRegex.hasMatch(email);
+  }
+
+  // Método para obtener el rol del usuario desde Firestore
+  Future<String?> _getUserRole(String uid) async {
+    DocumentSnapshot snapshot =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    return snapshot['role'] as String?;
   }
 
   @override
@@ -110,6 +119,8 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 // Botón de "Iniciar Sesión" con indicador de carga
                 ElevatedButton(
+                  // En el método onPressed del botón "Iniciar Sesión" en SignInScreen
+
                   onPressed: () async {
                     // Validación específica de cada campo
                     if (_emailTextController.text.isEmpty) {
@@ -119,7 +130,6 @@ class _SignInScreenState extends State<SignInScreen> {
                       return;
                     }
 
-                    // Validación del formato del correo
                     if (!isValidEmail(_emailTextController.text)) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -137,21 +147,39 @@ class _SignInScreenState extends State<SignInScreen> {
                       return;
                     }
 
-                    // Activar indicador de carga
                     setState(() {
                       _isLoading = true;
                     });
 
-                    // Intentar iniciar sesión
                     try {
-                      await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      UserCredential userCredential = await FirebaseAuth
+                          .instance
+                          .signInWithEmailAndPassword(
                         email: _emailTextController.text,
                         password: _passwordTextController.text,
                       );
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                      );
+
+                      // Obtener UID del usuario autenticado y verificar rol
+                      String uid = userCredential.user!.uid;
+                      String? role = await _getUserRole(uid);
+
+                      // Redirigir según el rol usando Navigator.pushAndRemoveUntil
+                      if (role == 'Administrador') {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MaintenanceScreen()),
+                          (route) =>
+                              false, // Elimina todas las rutas anteriores para evitar volver
+                        );
+                      } else {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomeScreen()),
+                          (route) =>
+                              false, // Elimina todas las rutas anteriores para evitar volver
+                        );
+                      }
                     } on FirebaseAuthException catch (e) {
                       String errorMessage;
                       if (e.code == 'wrong-password') {
@@ -162,9 +190,6 @@ class _SignInScreenState extends State<SignInScreen> {
                             'No se encontró un usuario con ese correo.';
                       } else if (e.code == 'invalid-email') {
                         errorMessage = 'El correo electrónico no es válido.';
-                      } else if (e.code == 'too-many-requests') {
-                        errorMessage =
-                            'Demasiados intentos fallidos. Intenta más tarde.';
                       } else {
                         errorMessage =
                             'Ocurrió un error. Por favor, intenta de nuevo.';
@@ -174,35 +199,30 @@ class _SignInScreenState extends State<SignInScreen> {
                         SnackBar(content: Text(errorMessage)),
                       );
                     } finally {
-                      // Desactivar indicador de carga al terminar el proceso
                       setState(() {
                         _isLoading = false;
                       });
                     }
                   },
-                  child:
-                      _isLoading // Mostrar el indicador de carga o el texto "Iniciar Sesión"
-                          ? CircularProgressIndicator(
-                              color: Colors
-                                  .white, // Cambiado a blanco para mayor coherencia
-                            )
-                          : Text(
-                              "Iniciar Sesión",
-                              style: const TextStyle(
-                                color: Colors
-                                    .white, // Cambiado a blanco para mejorar la legibilidad
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
+                  child: _isLoading
+                      ? CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : Text(
+                          "Iniciar Sesión",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                   style: ButtonStyle(
                     backgroundColor:
                         MaterialStateProperty.resolveWith((states) {
                       if (states.contains(MaterialState.pressed)) {
-                        return const Color(
-                            0xFF400C5C); // Color cuando se presiona
+                        return const Color(0xFF400C5C);
                       }
-                      return const Color(0xFF400C5C); // Color normal del botón
+                      return const Color(0xFF400C5C);
                     }),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
@@ -222,8 +242,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 ElevatedButton.icon(
                   onPressed: () async {
                     setState(() {
-                      _isLoading =
-                          true; // Muestra el loading para Google Sign-In
+                      _isLoading = true;
                     });
                     await FirebaseServices().signInWithGoogle();
                     Navigator.push(
@@ -231,8 +250,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       MaterialPageRoute(builder: (context) => HomeScreen()),
                     );
                     setState(() {
-                      _isLoading =
-                          false; // Desactiva el loading después del proceso
+                      _isLoading = false;
                     });
                   },
                   icon: Icon(Icons.account_circle_outlined),

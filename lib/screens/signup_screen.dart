@@ -88,6 +88,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'isDeafOrBlind': false, // Campo predeterminado que el usuario puede editar más tarde
         'birthDate': '', // El usuario lo llenará más tarde
         'nationality': '', // El usuario lo llenará más tarde
+        'role': 'Usuario', // Asigna el rol predeterminado como "Usuario"
       });
 
       print("Nueva cuenta creada y datos guardados en Firestore");

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/profile_page.dart';
 import 'package:proyecto_flutter_capscone/screens/about_us_page.dart';
-import 'package:proyecto_flutter_capscone/screens/learning_screen.dart'; // Importar la nueva pantalla de aprendizaje
-import 'package:proyecto_flutter_capscone/screens/practice_screen.dart'; // Importar la pantalla de práctica
+import 'package:proyecto_flutter_capscone/screens/learning_screen.dart';
+import 'package:proyecto_flutter_capscone/screens/practice_screen.dart';
+import 'package:proyecto_flutter_capscone/screens/report_screen.dart'; // Importar la pantalla de reportes
+import 'package:proyecto_flutter_capscone/screens/signin_screen.dart'; // Importar la pantalla de inicio de sesión
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // Actualizar las secciones para los nuevos módulos
+  // Secciones o módulos de la app
   List<String> sections = ['Aprendizaje', 'Práctica', 'Comunicación', 'Materiales de Apoyo'];
   List<String> filteredSections = [];
 
@@ -28,9 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  static List<Widget> _widgetOptions(BuildContext context, List<String> filteredSections) {
+  // Opciones de widget para la navegación por secciones
+  List<Widget> _widgetOptions(BuildContext context) {
     return [
-      // Pantalla principal con los cuatro módulos
       Column(
         children: [
           Expanded(
@@ -44,12 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSpacing: 20.0,
               ),
               itemBuilder: (context, index) {
-                // Manejar la acción al tocar cada uno de los módulos
                 return GestureDetector(
                   onTap: () {
                     switch (index) {
                       case 0:
-                        // Navegar al módulo de Aprendizaje
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -58,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                         break;
                       case 1:
-                        // Navegar al módulo de Práctica
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -67,12 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                         break;
                       case 2:
-                        // Navegar al módulo de Comunicación
-                        print('Módulo de Comunicación seleccionado');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Accediendo al módulo de Comunicación')),
+                        );
                         break;
                       case 3:
-                        // Navegar al módulo de Materiales de Apoyo
-                        print('Módulo de Materiales de Apoyo seleccionado');
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Accediendo al módulo de Materiales de Apoyo')),
+                        );
                         break;
                     }
                   },
@@ -92,15 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Definir iconos específicos para cada módulo
                         Icon(
                           index == 0
-                              ? Icons.school // Aprendizaje
+                              ? Icons.school
                               : index == 1
-                                  ? Icons.gamepad // Práctica o Juegos
+                                  ? Icons.gamepad
                                   : index == 2
-                                      ? Icons.message // Comunicación
-                                      : Icons.library_books, // Materiales de Apoyo
+                                      ? Icons.message
+                                      : Icons.library_books,
                           size: 50,
                           color: Colors.blue[800],
                         ),
@@ -122,11 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-
-      // Página de perfil
       ProfilePage(),
-
-      // Página de información "Sobre Nosotros"
       AboutUsPage(),
     ];
   }
@@ -141,8 +137,33 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: Colors.blue[800],
         centerTitle: true,
+        actions: [
+          // Botón para enviar reportes
+          IconButton(
+            icon: Icon(Icons.report_problem_outlined),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ReportIssueScreen()),
+              );
+            },
+            tooltip: 'Enviar Reporte',
+          ),
+          // Botón para redirigir al SignInScreen (cerrar sesión)
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => SignInScreen()),
+                (route) => false,
+              );
+            },
+            tooltip: 'Cerrar Sesión',
+          ),
+        ],
       ),
-      body: _widgetOptions(context, filteredSections)[_selectedIndex], // Renderizar el contenido
+      body: _widgetOptions(context)[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -160,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue[800],
-        onTap: _onItemTapped, // Cambiar entre inicio, perfil y sobre nosotros
+        onTap: _onItemTapped,
       ),
     );
   }
