@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// ignore: unused_import
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:proyecto_flutter_capscone/screens/error_monitor'; // Asegúrate de que esté importado
 import 'package:proyecto_flutter_capscone/screens/signin_screen.dart';
+import 'package:proyecto_flutter_capscone/screens/user_management_screen.dart';
 
 class MaintenanceScreen extends StatelessWidget {
   @override
@@ -33,7 +35,11 @@ class MaintenanceScreen extends StatelessWidget {
               description: 'Ver, editar o eliminar cuentas de usuario.',
               icon: Icons.people,
               onTap: () {
-                // Navegar a la pantalla de gestión de usuarios
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserManagementScreen()),
+                );
               },
             ),
 
@@ -48,7 +54,8 @@ class MaintenanceScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ErrorMonitoringScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => ErrorMonitoringScreen()),
                 );
               },
             ),
