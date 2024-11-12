@@ -4,7 +4,8 @@ import 'package:proyecto_flutter_capscone/screens/about_us_page.dart';
 import 'package:proyecto_flutter_capscone/screens/learning_screen.dart';
 import 'package:proyecto_flutter_capscone/screens/practice_screen.dart';
 import 'package:proyecto_flutter_capscone/screens/report_screen.dart'; // Importar la pantalla de reportes
-import 'package:proyecto_flutter_capscone/screens/signin_screen.dart'; // Importar la pantalla de inicio de sesión
+import 'package:proyecto_flutter_capscone/screens/signin_screen.dart';
+import 'package:proyecto_flutter_capscone/screens/support_materials_screen.dart'; // Importar la pantalla de inicio de sesión
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -71,8 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
                         break;
                       case 3:
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Accediendo al módulo de Materiales de Apoyo')),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SupportMaterialsScreen(),
+                          ),
                         );
                         break;
                     }
