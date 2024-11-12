@@ -1,69 +1,77 @@
-import 'package:cloud_firestore/cloud_firestore.dart';  // Asegúrate de importar Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:proyecto_flutter_capscone/screens/maintenance_screen.dart';
+import 'package:proyecto_flutter_capscone/screens/home_screen.dart';
 
 class FirebaseServices {
   final _auth = FirebaseAuth.instance;
   final _googleSignIn = GoogleSignIn();
-  final _firestore = FirebaseFirestore.instance;  // Inicializa Firestore
+  final _firestore = FirebaseFirestore.instance;
 
-  // Método para iniciar sesión con Google
-  Future<void> signInWithGoogle() async {
+  // Método para iniciar sesión con Google y verificar rol y mantenimiento
+  Future<void> signInWithGoogle(BuildContext context) async {
     try {
       final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
       if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
-        final AuthCredential authCredential = GoogleAuthProvider.credential(
-          accessToken: googleSignInAuthentication.accessToken,
-          idToken: googleSignInAuthentication.idToken,
+        final GoogleSignInAuthentication googleAuth = await googleSignInAccount.authentication;
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
         );
-        await _auth.signInWithCredential(authCredential);
+        UserCredential userCredential = await _auth.signInWithCredential(credential);
+        User? user = userCredential.user;
 
-        // Crear un nuevo documento de usuario si no existe
-        _createUserInFirestore();
+        if (user != null) {
+          // Verificar si el usuario tiene rol asignado
+          final userDoc = _firestore.collection('users').doc(user.uid);
+          final docSnapshot = await userDoc.get();
+
+          if (!docSnapshot.exists) {
+            // Crear el documento de usuario con rol predeterminado "Usuario"
+            await userDoc.set({
+              'name': user.displayName ?? '',
+              'lastName': '',
+              'email': user.email,
+              'birthDate': '',
+              'nationality': '',
+              'isDeafOrBlind': false,
+              'role': 'Usuario',
+              'createdAt': FieldValue.serverTimestamp(),
+            });
+          } else if (docSnapshot.data()?['role'] == null) {
+            // Actualizar el rol a "Usuario" si el campo "role" está vacío
+            await userDoc.update({'role': 'Usuario'});
+          }
+
+          // Verificar el modo de mantenimiento
+          final settingsDoc = await _firestore.collection('settings').doc('appConfig').get();
+          final isMaintenanceMode = settingsDoc.data()?['isMaintenanceMode'] ?? false;
+          final role = (await userDoc.get()).data()?['role'];
+
+          // Redirigir al usuario dependiendo del rol y estado de mantenimiento
+          if (isMaintenanceMode && role != 'Administrador') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('La aplicación está en modo de mantenimiento')),
+            );
+            await _auth.signOut(); // Cerrar sesión si el usuario no es administrador
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => role == 'Administrador' ? MaintenanceScreen() : HomeScreen(),
+              ),
+            );
+          }
+        }
       }
     } on FirebaseAuthException catch (e) {
       print(e.message);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Error al iniciar sesión con Google')),
+      );
       throw e;
-    }
-  }
-
-  // Crear un nuevo usuario en Firestore si no existe
-  Future<void> _createUserInFirestore() async {
-    final user = _auth.currentUser;
-
-    if (user != null) {
-      final userDoc = _firestore.collection('users').doc(user.uid);
-
-      final docSnapshot = await userDoc.get();
-      if (!docSnapshot.exists) {
-        await userDoc.set({
-          'name': user.displayName ?? '',
-          'lastName': '',  // Campo vacío por defecto
-          'email': user.email,
-          'birthDate': '',
-          'nationality': '',
-          'isDeafOrBlind': false,
-          'createdAt': FieldValue.serverTimestamp(),
-        });
-      }
-    }
-  }
-
-  // Obtener los datos del usuario desde Firestore
-  Future<DocumentSnapshot> getUserData() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      return _firestore.collection('users').doc(user.uid).get();
-    }
-    throw Exception("User not logged in");
-  }
-
-  // Actualizar los datos del usuario en Firestore
-  Future<void> updateUserProfile(Map<String, dynamic> data) async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      await _firestore.collection('users').doc(user.uid).update(data);
     }
   }
 

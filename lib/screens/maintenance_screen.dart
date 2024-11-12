@@ -1,12 +1,76 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-// ignore: unused_import
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:proyecto_flutter_capscone/screens/error_monitor'; // Asegúrate de que esté importado
+import 'package:flutter/material.dart';
+import 'package:proyecto_flutter_capscone/screens/error_monitor.dart';
 import 'package:proyecto_flutter_capscone/screens/signin_screen.dart';
 import 'package:proyecto_flutter_capscone/screens/user_management_screen.dart';
 
-class MaintenanceScreen extends StatelessWidget {
+class MaintenanceScreen extends StatefulWidget {
+  @override
+  _MaintenanceScreenState createState() => _MaintenanceScreenState();
+}
+
+class _MaintenanceScreenState extends State<MaintenanceScreen> {
+  bool _isMaintenanceMode = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMaintenanceModeStatus();
+  }
+
+  // Método para obtener el estado del modo mantenimiento desde Firestore
+  Future<void> _fetchMaintenanceModeStatus() async {
+    try {
+      DocumentSnapshot snapshot = await FirebaseFirestore.instance
+          .collection('settings')
+          .doc('appConfig')
+          .get();
+
+      // Si el documento existe, actualiza el estado de _isMaintenanceMode
+      if (snapshot.exists) {
+        setState(() {
+          _isMaintenanceMode = snapshot.get('isMaintenanceMode') ?? false;
+        });
+      } else {
+        // Si el documento no existe, lo creamos con isMaintenanceMode en false
+        await FirebaseFirestore.instance
+            .collection('settings')
+            .doc('appConfig')
+            .set({'isMaintenanceMode': false});
+      }
+    } catch (e) {
+      print("Error al obtener el estado de mantenimiento: $e");
+    }
+  }
+
+  // Método para activar o desactivar el modo mantenimiento
+  Future<void> _toggleMaintenanceMode() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('settings')
+          .doc('appConfig')
+          .update({'isMaintenanceMode': !_isMaintenanceMode});
+
+      setState(() {
+        _isMaintenanceMode = !_isMaintenanceMode;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isMaintenanceMode
+              ? 'Modo Mantenimiento activado'
+              : 'Modo Mantenimiento desactivado'),
+        ),
+      );
+    } catch (e) {
+      print("Error al actualizar el modo mantenimiento: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar el modo de mantenimiento')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,18 +139,29 @@ class MaintenanceScreen extends StatelessWidget {
 
             SizedBox(height: 20),
 
-            // Botón para modo de mantenimiento
-            _buildMaintenanceOption(
-              context,
-              title: 'Modo Mantenimiento',
-              description: 'Activa o desactiva el modo de mantenimiento.',
-              icon: Icons.build,
-              onTap: () {
-                // Funcionalidad para activar o desactivar el modo mantenimiento
-              },
+            // Opción para activar/desactivar el modo mantenimiento
+            ListTile(
+              leading: Icon(
+                Icons.build,
+                color: Colors.blue[800],
+                size: 30,
+              ),
+              title: Text(
+                'Modo Mantenimiento',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              subtitle: Text(_isMaintenanceMode
+                  ? 'Modo Mantenimiento está activado'
+                  : 'Modo Mantenimiento está desactivado'),
+              trailing: Switch(
+                value: _isMaintenanceMode,
+                onChanged: (value) {
+                  _toggleMaintenanceMode();
+                },
+              ),
             ),
 
-            Spacer(), // Espacio flexible para empujar el botón hacia abajo
+            Spacer(),
 
             // Botón de Cerrar Sesión
             Center(
@@ -102,7 +177,7 @@ class MaintenanceScreen extends StatelessWidget {
                 icon: Icon(Icons.logout),
                 label: Text('Cerrar Sesión'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red, // Color de fondo rojo
+                  backgroundColor: Colors.red,
                 ),
               ),
             ),

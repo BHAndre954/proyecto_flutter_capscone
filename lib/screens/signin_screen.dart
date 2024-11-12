@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:proyecto_flutter_capscone/screens/home_screen.dart';
-import 'package:proyecto_flutter_capscone/screens/maintenance_screen.dart'; // Asegúrate de importar esta pantalla
+import 'package:proyecto_flutter_capscone/screens/maintenance_screen.dart';
 import 'package:proyecto_flutter_capscone/utils/navigation_utils.dart';
 import 'package:proyecto_flutter_capscone/screens/reset_password.dart';
 import 'package:proyecto_flutter_capscone/screens/signup_screen.dart';
@@ -17,7 +17,7 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  bool _isLoading = false; // Variable para manejar el estado de carga.
+  bool _isLoading = false;
   TextEditingController _passwordTextController = TextEditingController();
   TextEditingController _emailTextController = TextEditingController();
 
@@ -33,6 +33,15 @@ class _SignInScreenState extends State<SignInScreen> {
     DocumentSnapshot snapshot =
         await FirebaseFirestore.instance.collection('users').doc(uid).get();
     return snapshot['role'] as String?;
+  }
+
+  // Método para verificar el estado de mantenimiento
+  Future<bool> _checkMaintenanceMode() async {
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection('settings')
+        .doc('appConfig')
+        .get();
+    return snapshot['isMaintenanceMode'] ?? false;
   }
 
   @override
@@ -58,7 +67,6 @@ class _SignInScreenState extends State<SignInScreen> {
                 20, MediaQuery.of(context).size.height * 0.1, 20, 0),
             child: Column(
               children: <Widget>[
-                // Logo
                 Image.asset(
                   "assets/Logo.png",
                   fit: BoxFit.fitWidth,
@@ -114,35 +122,16 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 const SizedBox(height: 5),
 
-                // Función para recuperar contraseña
                 forgetPassword(context),
 
-                // Botón de "Iniciar Sesión" con indicador de carga
                 ElevatedButton(
-                  // En el método onPressed del botón "Iniciar Sesión" en SignInScreen
-
                   onPressed: () async {
-                    // Validación específica de cada campo
-                    if (_emailTextController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Por favor coloque su correo")),
-                      );
-                      return;
-                    }
-
-                    if (!isValidEmail(_emailTextController.text)) {
+                    if (_emailTextController.text.isEmpty ||
+                        !isValidEmail(_emailTextController.text) ||
+                        _passwordTextController.text.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                            content:
-                                Text("Por favor, ingrese un correo válido.")),
-                      );
-                      return;
-                    }
-
-                    if (_passwordTextController.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text("Por favor coloque su contraseña")),
+                            content: Text("Verifica tu correo y contraseña.")),
                       );
                       return;
                     }
@@ -159,42 +148,32 @@ class _SignInScreenState extends State<SignInScreen> {
                         password: _passwordTextController.text,
                       );
 
-                      // Obtener UID del usuario autenticado y verificar rol
                       String uid = userCredential.user!.uid;
                       String? role = await _getUserRole(uid);
+                      bool isMaintenanceMode = await _checkMaintenanceMode();
 
-                      // Redirigir según el rol usando Navigator.pushAndRemoveUntil
-                      if (role == 'Administrador') {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MaintenanceScreen()),
-                          (route) =>
-                              false, // Elimina todas las rutas anteriores para evitar volver
+                      if (isMaintenanceMode && role != 'Administrador') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(
+                                  'La aplicación está en modo de mantenimiento')),
                         );
                       } else {
-                        Navigator.pushAndRemoveUntil(
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => HomeScreen()),
-                          (route) =>
-                              false, // Elimina todas las rutas anteriores para evitar volver
+                          MaterialPageRoute(
+                            builder: (context) => role == 'Administrador'
+                                ? MaintenanceScreen()
+                                : HomeScreen(),
+                          ),
                         );
                       }
                     } on FirebaseAuthException catch (e) {
-                      String errorMessage;
-                      if (e.code == 'wrong-password') {
-                        errorMessage =
-                            'Contraseña incorrecta. Intenta nuevamente.';
-                      } else if (e.code == 'user-not-found') {
-                        errorMessage =
-                            'No se encontró un usuario con ese correo.';
-                      } else if (e.code == 'invalid-email') {
-                        errorMessage = 'El correo electrónico no es válido.';
-                      } else {
-                        errorMessage =
-                            'Ocurrió un error. Por favor, intenta de nuevo.';
-                      }
-
+                      String errorMessage = e.code == 'wrong-password'
+                          ? 'Contraseña incorrecta. Intenta nuevamente.'
+                          : e.code == 'user-not-found'
+                              ? 'No se encontró un usuario con ese correo.'
+                              : 'Ocurrió un error. Por favor, intenta de nuevo.';
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(errorMessage)),
                       );
@@ -205,25 +184,13 @@ class _SignInScreenState extends State<SignInScreen> {
                     }
                   },
                   child: _isLoading
-                      ? CircularProgressIndicator(
-                          color: Colors.white,
-                        )
-                      : Text(
-                          "Iniciar Sesión",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text("Iniciar Sesión",
+                          style: TextStyle(color: Colors.white)),
                   style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.resolveWith((states) {
-                      if (states.contains(MaterialState.pressed)) {
-                        return const Color(0xFF400C5C);
-                      }
-                      return const Color(0xFF400C5C);
-                    }),
+                    backgroundColor: MaterialStateProperty.resolveWith(
+                      (states) => Colors.deepPurple,
+                    ),
                     shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
@@ -233,22 +200,17 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Opción para registrarse
                 signUpOption(context),
 
-                const SizedBox(height: 20), // Espaciado adicional
+                const SizedBox(height: 20),
 
-                // Botón de inicio de sesión con Google
+                // Botón de inicio de sesión con Google en SignInScreen
                 ElevatedButton.icon(
                   onPressed: () async {
                     setState(() {
                       _isLoading = true;
                     });
-                    await FirebaseServices().signInWithGoogle();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomeScreen()),
-                    );
+                    await FirebaseServices().signInWithGoogle(context);
                     setState(() {
                       _isLoading = false;
                     });
@@ -270,21 +232,14 @@ Row signUpOption(BuildContext context) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      const Text(
-        "¿No tiene una cuenta?",
-        style: TextStyle(color: Colors.white70),
-      ),
+      const Text("¿No tiene una cuenta?",
+          style: TextStyle(color: Colors.white70)),
       GestureDetector(
         onTap: () {
-          Navigator.push(
-            context,
-            createRoute(SignUpScreen()),
-          );
+          Navigator.push(context, createRoute(SignUpScreen()));
         },
-        child: const Text(
-          " Regístrate",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+        child: const Text(" Regístrate",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
       )
     ],
   );
